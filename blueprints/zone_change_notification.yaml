@@ -22,6 +22,18 @@ trigger:
 variables:
   person_entity: !input person_entity
   person_name: "{{ states[person_entity].name }}"
+  from_zone: "{{ trigger.from_state.state }}"
+  to_zone: "{{ trigger.to_state.state }}"
+  
+  {# home zone and not_home zone are special zones in Home Assistant - with name not configurable #}
+  from_zone_name: >
+    {% if from_zone == "home" %} "Home"
+    {% elif from_zone == "not_home" %} "away"
+    {% else %} "{{ from_zone }}"
+  to_zone_name: >
+    {% if to_zone == "home" %} "Home"
+    {% elif to_zone == "not_home" %} "away"
+    {% else %} "{{ to_zone }}"
 
 condition:
   condition: template
@@ -33,4 +45,4 @@ action:
     domain: mobile_app
     type: notify
     device_id: !input notify_device
-    message: "{{ person_name }} has moved from {{ trigger.from_state.state }} to {{ trigger.to_state.state }}"
+    message: "{{ person_name }} has moved from {{ from_zone_name }} to {{ to_zone_name }}"
